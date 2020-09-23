@@ -5,19 +5,36 @@
 using namespace cv;
 using namespace std;
 
-uchar Pixel(const Mat& image, const vector<vector<double>> &kernel, int i, int j)
+uchar Pixel1b(const Mat& image, const vector<vector<double>> &kernel, int i, int j)
 {
-    int ksize = kernel.size();
     int pixel = 0;
 
-    for(int k_i = 0; k_i < ksize; ++k_i)
-        for(int k_j = 0; k_j < ksize; ++k_j)
+    for(int k_i = 0; k_i < kernel.size(); ++k_i)
+        for(int k_j = 0; k_j < kernel.size(); ++k_j)
             pixel += kernel[k_i][k_j] * image.at<uchar>(i - 1 + k_i, j - 1 + k_j);
 
     pixel = (pixel > 255) ? 255 : pixel;
     pixel = (pixel < 0) ? 0 : pixel;
 
-    return (uchar)pixel;
+    return pixel;
+}
+
+Vec3b Pixel3b(const Mat& image, const vector<vector<double>> &kernel, int i, int j)
+{
+    Vec3b pixel;
+
+    for(int p = 0; p < 3; ++p)
+    {
+        pixel[p] = 0;
+        for(int k_i = 0; k_i < kernel.size(); ++k_i)
+            for(int k_j = 0; k_j < kernel.size(); ++k_j)
+                pixel[p] += kernel[k_i][k_j] * image.at<Vec3b>(i - 1 + k_i, j - 1 + k_j)[p];
+
+        pixel[p] = (pixel[p] > 255) ? 255 : pixel[p];
+        pixel[p] = (pixel[p] < 0) ? 0 : pixel[p];
+    }
+
+    return pixel;
 }
 
 Mat customBlur(const Mat &image)
@@ -32,20 +49,13 @@ Mat customBlur(const Mat &image)
     {
         for(int i = 1; i < image.rows - 1; ++i)
             for(int j = 1; j < image.cols - 1; ++j)
-                imageBlur.at<uchar>(i, j) = Pixel(image, kernel, i, j);
+                imageBlur.at<uchar>(i, j) = Pixel1b(image, kernel, i, j);
     } 
     else 
     {
-        vector<Mat> channels;
-        split(imageBlur, channels);
-        vector<Mat> res = channels;
-
         for(int i = 1; i < image.rows - 1; ++i)
             for(int j = 1; j < image.cols - 1; ++j)
-                for(int k = 0; k < 3; ++k)
-                    res[k].at<uchar>(i, j) = Pixel(channels[k], kernel, i, j);
-
-        merge(res, imageBlur);
+                imageBlur.at<Vec3b>(i, j) = Pixel3b(image, kernel, i, j);
     }
 
     return imageBlur;
@@ -59,7 +69,7 @@ Mat gradientEast(const Mat &image)
 
     for(int i = 1; i < image.rows - 1; ++i)
         for(int j = 1; j < image.cols - 1; ++j)
-            imageGradEast.at<uchar>(i, j) = Pixel(image, kernel, i, j);
+            imageGradEast.at<uchar>(i, j) = Pixel1b(image, kernel, i, j);
 
     return imageGradEast;
 }
@@ -88,7 +98,6 @@ int main(int argc, char *argv[])
     imshow("Original image", imageOrig);
     imshow("GaussianBlur image", imageGaussianBlur);
     imshow("CustomBlur image", customBlur(imageOrig));
-
     imshow("Gradient East", gradientEast(imageGray));
 
     waitKey(0);
