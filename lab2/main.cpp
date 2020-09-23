@@ -5,16 +5,48 @@
 using namespace cv;
 using namespace std;
 
+uchar Pixel(const Mat& image, const vector<vector<double>> &kernel, int i, int j)
+{
+    int ksize = kernel.size();
+    int pixel = 0;
+
+    for(int k_i = 0; k_i < ksize; ++k_i)
+        for(int k_j = 0; k_j < ksize; ++k_j)
+            pixel += kernel[k_i][k_j] * image.at<uchar>(i - 1 + k_i, j - 1 + k_j);
+
+    pixel = (pixel > 255) ? 255 : pixel;
+    pixel = (pixel < 0) ? 0 : pixel;
+
+    return (uchar)pixel;
+}
+
 Mat customBlur(const Mat &image)
 {
-    Mat imageBlur;
+    Mat imageBlur = image.clone();
 
     int ksize = 3;
 
-    Mat kernel(Size(ksize, ksize), CV_64F);
-    kernel.setTo(1. / (ksize * ksize));
+    vector<vector<double>> kernel(ksize, vector<double>(ksize, 1. / (ksize * ksize)));
+    
+    if(!imageBlur.type())
+    {
+        for(int i = 1; i < image.rows - 1; ++i)
+            for(int j = 1; j < image.cols - 1; ++j)
+                imageBlur.at<uchar>(i, j) = Pixel(image, kernel, i, j);
+    } 
+    else 
+    {
+        vector<Mat> channels;
+        split(imageBlur, channels);
+        vector<Mat> res = channels;
 
-    filter2D(image, imageBlur, -1, kernel);
+        for(int i = 1; i < image.rows - 1; ++i)
+            for(int j = 1; j < image.cols - 1; ++j)
+                for(int k = 0; k < 3; ++k)
+                    res[k].at<uchar>(i, j) = Pixel(channels[k], kernel, i, j);
+
+        merge(res, imageBlur);
+    }
 
     return imageBlur;
 }
@@ -23,29 +55,12 @@ Mat gradientEast(const Mat &image)
 {
     Mat imageGradEast = image.clone();
 
-    int kernel[3][3] = {
-        {-1, 0, 1},
-        {-2, 0, 2},
-        {-1, 0, 1}
-    };
-
-    int gx, gy;
-    gy = 0;
+    vector<vector<double>> kernel = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
 
     for(int i = 1; i < image.rows - 1; ++i)
-    {
         for(int j = 1; j < image.cols - 1; ++j)
-        {
-            gx = 0;
-            for(int k_i = 0; k_i < 3; ++k_i)
-                for(int k_j = 0; k_j < 3; ++k_j)
-                    gx += kernel[k_i][k_j] * image.at<uchar>(i - 1 + k_i, j - 1 + k_j);
-            gx = (gx > 255) ? 255 : gx;
-            gx = (gx < 0) ? 0 : gx;
-            imageGradEast.at<uchar>(i, j) = gx;
-        }
-    }
-    
+            imageGradEast.at<uchar>(i, j) = Pixel(image, kernel, i, j);
+
     return imageGradEast;
 }
 
@@ -68,12 +83,12 @@ int main(int argc, char *argv[])
     }
 
     GaussianBlur(imageOrig, imageGaussianBlur, Size(9, 9), 0);
+    cvtColor(imageOrig, imageGray, COLOR_BGR2GRAY);
 
     imshow("Original image", imageOrig);
     imshow("GaussianBlur image", imageGaussianBlur);
     imshow("CustomBlur image", customBlur(imageOrig));
 
-    cvtColor(imageOrig, imageGray, COLOR_BGR2GRAY);
     imshow("Gradient East", gradientEast(imageGray));
 
     waitKey(0);
