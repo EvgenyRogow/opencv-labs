@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    Mat frame, frameGray, frameBlur, frameRed, frameEdges;
+    Mat frame, frameGray, frameHSV, frameBlur, frameRed, frameEdges, redMask1, redMask2;
     VideoCapture cap;
 
     cap.open(0, CAP_ANY);
@@ -31,9 +31,14 @@ int main(int argc, char *argv[])
         }
 
         cvtColor(frame, frameGray, COLOR_BGR2GRAY);
+        cvtColor(frame, frameHSV, COLOR_BGR2HSV);
 
         blur(frame, frameBlur, Size(11, 11));
-        inRange(frame, Scalar(0, 0, 150), Scalar(100, 100, 255) , frameRed);
+
+        Mat mask1, mask2;
+        inRange(frameHSV, Scalar(0, 100, 100), Scalar(10, 255, 255) , redMask1);
+        inRange(frameHSV, Scalar(160, 100, 100), Scalar(180, 255, 255) , redMask2);
+        frameRed = redMask1 | redMask2;
 
         blur(frameGray, frameEdges, Size(3, 3));
         Canny(frameEdges, frameEdges, threshold, 2 * threshold);
