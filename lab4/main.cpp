@@ -33,12 +33,12 @@ int main(int argc, char *argv[])
     namedWindow("video");
 
     int valueTopline = 220;
-    int valueBaseline = 40;
+    int valueBaseline = 540;
     int valueHeight = 330;
 
     createTrackbar("Topline", "video", &valueTopline, widthIn);
     createTrackbar("Baseline", "video", &valueBaseline, widthIn);
-    createTrackbar("Height", "video", &valueHeight, heightIn);
+    createTrackbar("Height", "video", &valueHeight, heightIn - 20);
 
     clock_t start = clock();
 
@@ -52,10 +52,10 @@ int main(int argc, char *argv[])
         resize(matIn, matIn, Size(widthIn, heightIn));
         matTrap = matIn.clone();
 
-        inputPoints[0] = Point2f(valueBaseline, 460);
-        inputPoints[1] = Point2f(valueTopline, valueHeight);
-        inputPoints[2] = Point2f(widthIn - valueTopline, valueHeight);
-        inputPoints[3] = Point2f(640 - valueBaseline, 460);
+        inputPoints[0] = Point2f((widthIn - valueBaseline) / 2, heightIn - 20);
+        inputPoints[1] = Point2f((widthIn - valueTopline) / 2, valueHeight);
+        inputPoints[2] = Point2f((widthIn + valueTopline) / 2, valueHeight);
+        inputPoints[3] = Point2f((widthIn + valueBaseline) / 2, heightIn - 20);
 
         circle(matTrap, inputPoints[0], 1, Scalar(0, 0, 255), FILLED);
         circle(matTrap, inputPoints[1], 1, Scalar(0, 0, 255), FILLED);
