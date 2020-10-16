@@ -16,11 +16,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-	int widthIn = 640;
-	int heightIn = 480;
+    int widthIn = 640;
+    int heightIn = 480;
     int widthOut = 360;
     int heightOut = 280;
-	char fpsStr[20];
+    char fpsStr[20];
     char timeStr[20];
 
     Point2f inputPoints[4];
@@ -52,10 +52,17 @@ int main(int argc, char *argv[])
         resize(matIn, matIn, Size(widthIn, heightIn));
         matTrap = matIn.clone();
 
+<<<<<<< HEAD
         inputPoints[0] = Point2f((widthIn - valueBaseline) / 2, heightIn - 20);
         inputPoints[1] = Point2f((widthIn - valueTopline) / 2, valueHeight);
         inputPoints[2] = Point2f((widthIn + valueTopline) / 2, valueHeight);
         inputPoints[3] = Point2f((widthIn + valueBaseline) / 2, heightIn - 20);
+=======
+        inputPoints[0] = Point2f(valueBaseline, 460);
+        inputPoints[1] = Point2f(valueTopline, valueHeight);
+        inputPoints[2] = Point2f(widthIn - valueTopline, valueHeight);
+        inputPoints[3] = Point2f(widthIn - valueBaseline, 460);
+>>>>>>> fc271f77d3515b85d7170b133c73b2c70d50836b
 
         circle(matTrap, inputPoints[0], 1, Scalar(0, 0, 255), FILLED);
         circle(matTrap, inputPoints[1], 1, Scalar(0, 0, 255), FILLED);
