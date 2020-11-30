@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
     Point2f maxPointRight;
     Point2f minPointRight;
 
-    int agree = 2;
+    int degree = 2;
 
     namedWindow("frame");
 
@@ -259,8 +259,8 @@ int main(int argc, char *argv[])
         for(int i = 0; i < rightPoints.size(); ++i)
             circle(frame, rightPoints[i], 3, Scalar(255, 0, 0), FILLED);
 
-        left_coeffs = approximation(invAllPoints[0], agree);
-        right_coeffs = approximation(invAllPoints[1], agree);
+        left_coeffs = approximation(invAllPoints[0], degree);
+        right_coeffs = approximation(invAllPoints[1], degree);
 
         maxPointLeft = getMaxPoint(invAllPoints[0]);
         minPointLeft = getMinPoint(invAllPoints[0]);
