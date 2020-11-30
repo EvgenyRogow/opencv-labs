@@ -82,6 +82,8 @@ int main(int argc, char *argv[])
 
     for(;;)
     {
+        points.clear();
+        
         video.read(frame);
 
         if(frame.empty())
@@ -114,7 +116,8 @@ int main(int argc, char *argv[])
         invPoints = searchWindow(frameSliceProc);
 
         invert(M, invM);
-        perspectiveTransform(invPoints, points, invM);
+        if(invPoints.size())
+            perspectiveTransform(invPoints, points, invM);
 
         for(int i = 0; i < points.size(); ++i)
             circle(frame, points[i], 3, Scalar(255, 0, 0), FILLED);
